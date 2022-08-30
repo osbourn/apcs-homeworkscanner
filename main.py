@@ -6,7 +6,11 @@ from pathlib import Path
 from typing import List
 from typing import Dict
 
-from pdfminer.high_level import extract_text
+try:
+    from pdfminer.high_level import extract_text
+except ImportError:
+    print('Module pdfminer not found, is pdfminer.six installed?')
+    exit(1)
 
 def main():
     # Get list of files to scan
@@ -22,7 +26,7 @@ def main():
 
     # Create dictionary to store scores in
     scores: Dict[str, int] = {}
-    
+
     # Scan files
     for file_to_scan in files_in_directory:
         if re.match(r'.*\.pdf$', file_to_scan):
