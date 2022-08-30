@@ -17,10 +17,11 @@ except ImportError:
     print('Module pdfminer not found, is pdfminer.six installed?')
     exit(1)
 
-ocr_avaliable: bool = False
+pdf_ocr_avaliable: bool = False
 try:
     import ocrmypdf
-    ocr_available = True
+    global pdf_ocr_available
+    pdf_ocr_avaliable = True
 except ImportError:
     print('Module ocrmypdf not found, ocr will not be available for pdfs')
 
@@ -42,12 +43,13 @@ def main():
     # Scan files
     for file_to_scan in files_in_directory:
         filepath: Path = Path(sys.argv[1]) / file_to_scan
+        score: int = 0
 
         # Image files
         if re.match(r'.*\.(png|jpg)$', file_to_scan):
             print(f'Scanning image with tesseract {filepath}: ', end='')
             text = pytesseract.image_to_string(Image.open(filepath))
-            score: int = get_score(text, questions)
+            score = get_score(text, questions)
             print(f'{score} pts')
 
         # PDF files
@@ -55,15 +57,15 @@ def main():
             # Scan file
             print(f'Scanning pdf {filepath}: ', end='')
             text = extract_text(str(filepath))
-            score: int = get_score(text, questions)
+            score = get_score(text, questions)
             print(f'{score} pts')
 
             # If score is 0, rescan file with ocr
-            if score == 0:
-                print(f'Applying ocr to {filepath}...')
+            if score == 0 and pdf_ocr_avaliable:
+                print(f'Applying OCR to {filepath}...')
                 try:
                     ocrmypdf.ocr(str(filepath), 'temp.pdf')
-                    print(f'Rescanning ocr version of {filepath}: ')
+                    print(f'Rescanning OCR version of {filepath}: ', end='')
                     text = extract_text('temp.pdf')
                     score = get_score(text, questions)
                     print(f'{score} pts')
@@ -71,9 +73,9 @@ def main():
                 except PriorOcrFoundError:
                     print('OCR failed because text was already present')
 
-            # Store score in dictionary
-            studentname: str = file_to_scan.split('_', 1)[0]
-            scores[studentname] = score
+        # Store score in dictionary
+        studentname: str = file_to_scan.split('_', 1)[0]
+        scores[studentname] = score
 
     # Write scores to scores.csv
     with open('scores.csv', 'w', newline='') as f:
