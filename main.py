@@ -6,11 +6,20 @@ from pathlib import Path
 from typing import List
 from typing import Dict
 
+from ocrmypdf.exceptions import PriorOcrFoundError
+
 try:
     from pdfminer.high_level import extract_text
 except ImportError:
     print('Module pdfminer not found, is pdfminer.six installed?')
     exit(1)
+
+ocr_avaliable: bool = False
+try:
+    import ocrmypdf
+    ocr_available = True
+except ImportError:
+    print('Module ocrmypdf not found, ocr will not be available for pdfs')
 
 def main():
     # Get list of files to scan
@@ -35,6 +44,18 @@ def main():
             print(f'Scanning pdf {filepath}: ', end='')
             score: int = get_score(filepath, questions)
             print(f'{score} pts')
+
+            # If score is 0, rescan file with ocr
+            if score == 0:
+                print(f'Applying ocr to {filepath}...')
+                try:
+                    ocrmypdf.ocr(str(filepath), 'temp.pdf')
+                    print(f'Rescanning ocr version of {filepath}: ')
+                    score = get_score(Path('temp.pdf'), questions)
+                    print(f'{score} pts')
+                    os.remove('temp.pdf')
+                except PriorOcrFoundError:
+                    print('OCR failed because text was already present')
 
             # Store score in dictionary
             studentname: str = file_to_scan.split('_', 1)[0]
