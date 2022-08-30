@@ -2,11 +2,14 @@ import os
 import sys
 import re
 import csv
+from PIL import Image
 from pathlib import Path
 from typing import List
 from typing import Dict
 
 from ocrmypdf.exceptions import PriorOcrFoundError
+import pytesseract
+pytesseract.pytesseract.tesseract_cmd = r'C:/Users/Niels/AppData/Local/Tesseract-OCR/tesseract.exe'
 
 try:
     from pdfminer.high_level import extract_text
@@ -38,11 +41,21 @@ def main():
 
     # Scan files
     for file_to_scan in files_in_directory:
+        filepath: Path = Path(sys.argv[1]) / file_to_scan
+
+        # Image files
+        if re.match(r'.*\.(png|jpg)$', file_to_scan):
+            print(f'Scanning image with tesseract {filepath}: ', end='')
+            text = pytesseract.image_to_string(Image.open(filepath))
+            score: int = get_score(text, questions)
+            print(f'{score} pts')
+
+        # PDF files
         if re.match(r'.*\.pdf$', file_to_scan):
             # Scan file
-            filepath: Path = Path(sys.argv[1]) / file_to_scan
             print(f'Scanning pdf {filepath}: ', end='')
-            score: int = get_score(filepath, questions)
+            text = extract_text(str(filepath))
+            score: int = get_score(text, questions)
             print(f'{score} pts')
 
             # If score is 0, rescan file with ocr
@@ -51,7 +64,8 @@ def main():
                 try:
                     ocrmypdf.ocr(str(filepath), 'temp.pdf')
                     print(f'Rescanning ocr version of {filepath}: ')
-                    score = get_score(Path('temp.pdf'), questions)
+                    text = extract_text('temp.pdf')
+                    score = get_score(text, questions)
                     print(f'{score} pts')
                     os.remove('temp.pdf')
                 except PriorOcrFoundError:
@@ -66,10 +80,7 @@ def main():
         w = csv.writer(f)
         w.writerows(scores.items())
 
-def get_score(filepath: Path, questions: List[str]) -> int:
-    # Get text from file
-    text = extract_text(str(filepath))
-
+def get_score(text: str, questions: List[str]) -> int:
     # Remove duplicate spaces in text
     text = ' '.join(text.split())
 
