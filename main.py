@@ -64,7 +64,7 @@ def main():
             if score == 0 and pdf_ocr_avaliable:
                 print(f'Applying OCR to {filepath}...')
                 try:
-                    ocrmypdf.ocr(str(filepath), 'temp.pdf')
+                    ocrmypdf.ocr(str(filepath), 'temp.pdf') # pyright: ignore[reportPrivateImportUsage]
                     print(f'Rescanning OCR version of {filepath}: ', end='')
                     text = extract_text('temp.pdf')
                     score = get_score(text, questions)
