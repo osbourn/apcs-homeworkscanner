@@ -32,7 +32,9 @@ def main():
         if re.match(r'.*\.pdf$', file_to_scan):
             # Scan file
             filepath: Path = Path(sys.argv[1]) / file_to_scan
+            print(f'Scanning pdf {filepath}: ', end='')
             score: int = get_score(filepath, questions)
+            print(f'{score} pts')
 
             # Store score in dictionary
             studentname: str = file_to_scan.split('_', 1)[0]
@@ -45,7 +47,6 @@ def main():
 
 def get_score(filepath: Path, questions: List[str]) -> int:
     # Get text from file
-    print(f'Scanning pdf {filepath}: ', end='')
     text = extract_text(str(filepath))
 
     # Remove duplicate spaces in text
@@ -56,7 +57,6 @@ def get_score(filepath: Path, questions: List[str]) -> int:
     for question in questions:
         if len(question) > 0 and question in text != -1:
             completed_questions += 1
-    print(f'{completed_questions} pts')
 
     return completed_questions
 
