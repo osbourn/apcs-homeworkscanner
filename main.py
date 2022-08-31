@@ -8,7 +8,7 @@ from typing import Dict
 
 try:
     from pdfminer.high_level import extract_text
-except ImportError:
+except ModuleNotFoundError:
     print('Module pdfminer not found, is pdfminer.six installed?')
     exit(1)
 
@@ -17,7 +17,7 @@ try:
     import ocrmypdf
     from ocrmypdf.exceptions import PriorOcrFoundError
     pdf_ocr_available = True
-except ImportError:
+except ModuleNotFoundError:
     print('Module ocrmypdf not found, ocr will not be available for pdfs')
 
 image_ocr_available = False
@@ -31,7 +31,7 @@ try:
     if localappdata_path != None and os.path.exists(Path(localappdata_path) / r'Tesseract-OCR/tesseract.exe'):
         print('Tesseract found at %LocalAppData%/Tesseract-OCR/tesseract.exe, setting as tesseract executable')
         pytesseract.pytesseract.tesseract_cmd = str(Path(localappdata_path) / r'Tesseract-OCR/tesseract.exe')
-except ImportError:
+except ModuleNotFoundError:
     print('Module pillow or pytesseract not found, ocr will not be available for image files')
 
 def main():
