@@ -39,7 +39,7 @@ except ImportError:
 def main():
     # Get list of files to scan
     if len(sys.argv) != 2:
-        print('Exactly one command line argument should be supplied');
+        print('Exactly one command line argument should be supplied')
         exit(1)
     files_in_directory: List[str] = os.listdir(sys.argv[1])
 
