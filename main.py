@@ -30,7 +30,7 @@ try:
     # Set location of tesseract on Windows systems that might not have it in PATH
     localappdata_path = os.environ.get('LOCALAPPDATA')
     if localappdata_path != None and os.path.exists(Path(localappdata_path) / r'Tesseract-OCR/tesseract.exe'):
-        print('Tesseract found at %%LocalAppData%%/Tesseract-OCR/tesseract.exe, setting as tesseract executable')
+        print('Tesseract found at %LocalAppData%/Tesseract-OCR/tesseract.exe, setting as tesseract executable')
         pytesseract.pytesseract.tesseract_cmd = str(Path(localappdata_path) / r'Tesseract-OCR/tesseract.exe')
 except ImportError:
     print('Module pillow or pytesseract not found, ocr will not be available for image files')
