@@ -2,7 +2,6 @@ import os
 import sys
 import re
 import csv
-from PIL import Image
 from pathlib import Path
 from typing import List
 from typing import Dict
@@ -15,17 +14,18 @@ except ImportError:
     print('Module pdfminer not found, is pdfminer.six installed?')
     exit(1)
 
+pdf_ocr_available = False
 try:
     import ocrmypdf
-    global pdf_ocr_available
     pdf_ocr_available = True
 except ImportError:
     print('Module ocrmypdf not found, ocr will not be available for pdfs')
 
+image_ocr_available = False
 try:
     import pytesseract
-    global pytesseract_available
-    pytesseract_available = True
+    from PIL import Image
+    image_ocr_available = True
 
     # Set location of tesseract on Windows systems that might not have it in PATH
     localappdata_path = os.environ.get('LOCALAPPDATA')
@@ -33,7 +33,7 @@ try:
         print('Tesseract found at %%LocalAppData%%/Tesseract-OCR/tesseract.exe, setting as tesseract executable')
         pytesseract.pytesseract.tesseract_cmd = str(Path(localappdata_path) / r'Tesseract-OCR/tesseract.exe')
 except ImportError:
-    print('Module pytesseract not found, ocr will not be available for image files')
+    print('Module pillow or pytesseract not found, ocr will not be available for image files')
 
 def main():
     # Get list of files to scan
@@ -56,7 +56,7 @@ def main():
         score: int = 0
 
         # Image files
-        if pytesseract_available and re.match(r'.*\.(png|jpg)$', file_to_scan):
+        if image_ocr_available and re.match(r'.*\.(png|jpg)$', file_to_scan):
             print(f'Scanning image with tesseract {filepath}: ', end='')
             text = pytesseract.image_to_string(Image.open(filepath))
             score = get_score(text, questions)
