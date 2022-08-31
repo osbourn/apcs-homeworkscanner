@@ -8,8 +8,6 @@ from typing import List
 from typing import Dict
 
 from ocrmypdf.exceptions import PriorOcrFoundError
-import pytesseract
-pytesseract.pytesseract.tesseract_cmd = r'C:/Users/Niels/AppData/Local/Tesseract-OCR/tesseract.exe'
 
 try:
     from pdfminer.high_level import extract_text
@@ -24,6 +22,19 @@ try:
     pdf_ocr_avaliable = True
 except ImportError:
     print('Module ocrmypdf not found, ocr will not be available for pdfs')
+
+pytesseract_avaliable: bool = False
+try:
+    import pytesseract
+    pytesseract_avaliable = True
+
+    # Set location of tesseract on Windows systems that might not have it in PATH
+    localappdata_path = os.environ.get('LOCALAPPDATA')
+    if localappdata_path != None and os.path.exists(Path(localappdata_path) / r'Tesseract-OCR/tesseract.exe'):
+        print('Tesseract found at %%LocalAppData%%/Tesseract-OCR/tesseract.exe, setting as tesseract executable')
+        pytesseract.pytesseract.tesseract_cmd = str(Path(localappdata_path) / r'Tesseract-OCR/tesseract.exe')
+except ImportError:
+    print('Module pytesseract not found, ocr will not be avaliable for image files')
 
 def main():
     # Get list of files to scan
@@ -46,7 +57,7 @@ def main():
         score: int = 0
 
         # Image files
-        if re.match(r'.*\.(png|jpg)$', file_to_scan):
+        if pytesseract_avaliable and re.match(r'.*\.(png|jpg)$', file_to_scan):
             print(f'Scanning image with tesseract {filepath}: ', end='')
             text = pytesseract.image_to_string(Image.open(filepath))
             score = get_score(text, questions)
