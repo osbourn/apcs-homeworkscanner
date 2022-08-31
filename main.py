@@ -6,8 +6,6 @@ from pathlib import Path
 from typing import List
 from typing import Dict
 
-from ocrmypdf.exceptions import PriorOcrFoundError
-
 try:
     from pdfminer.high_level import extract_text
 except ImportError:
@@ -17,6 +15,7 @@ except ImportError:
 pdf_ocr_available = False
 try:
     import ocrmypdf
+    from ocrmypdf.exceptions import PriorOcrFoundError
     pdf_ocr_available = True
 except ImportError:
     print('Module ocrmypdf not found, ocr will not be available for pdfs')
