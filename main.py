@@ -57,7 +57,9 @@ def main():
         # Image files
         if image_ocr_available and re.match(r'.*\.(png|jpg)$', file_to_scan):
             print(f'Scanning image with tesseract {filepath}: ', end='')
-            text = pytesseract.image_to_string(Image.open(filepath))
+            img = Image.open(filepath)
+            img.convert("1")
+            text = pytesseract.image_to_string(img)
             score = get_score(text, questions)
             print(f'{score} pts')
 
@@ -94,11 +96,10 @@ def main():
 def get_score(text: str, questions: List[str]) -> int:
     # Remove duplicate spaces in text
     text = ' '.join(text.split())
-
     # Count number of completed questions
     completed_questions = 0
     for question in questions:
-        if len(question) > 0 and question in text != -1:
+        if len(question) > 0 and (question in text):
             completed_questions += 1
 
     return completed_questions
