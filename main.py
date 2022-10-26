@@ -5,6 +5,7 @@ import csv
 from pathlib import Path
 from typing import List
 from typing import Dict
+from typing import Tuple
 
 try:
     from pdfminer.high_level import extract_text
@@ -47,12 +48,13 @@ def main():
         questions = f.read().splitlines()
 
     # Create dictionary to store scores in
-    scores: Dict[str, int] = {}
+    data: List[Dict[str, str | int]] = []
 
     # Scan files
     for file_to_scan in files_in_directory:
         filepath: Path = Path(sys.argv[1]) / file_to_scan
         score: int = 0
+        missing_questions: List[str] = []
 
         # Image files
         if image_ocr_available and re.match(r'.*\.(png|jpg)$', file_to_scan):
@@ -60,7 +62,7 @@ def main():
             img = Image.open(filepath)
             img.convert("1")
             text = pytesseract.image_to_string(img)
-            score = get_score(text, questions)
+            (score, missing_questions) = get_score_and_missing_questions(text, questions)
             print(f'{score} pts')
 
         # PDF files
@@ -68,7 +70,7 @@ def main():
             # Scan file
             print(f'Scanning pdf {filepath}: ', end='')
             text = extract_text(str(filepath))
-            score = get_score(text, questions)
+            (score, missing_questions) = get_score_and_missing_questions(text, questions)
             print(f'{score} pts')
 
             # If score is 0, rescan file with ocr
@@ -78,7 +80,7 @@ def main():
                     ocrmypdf.ocr(str(filepath), 'temp.pdf') # pyright: ignore[reportPrivateImportUsage]
                     print(f'Rescanning OCR version of {filepath}: ', end='')
                     text = extract_text('temp.pdf')
-                    score = get_score(text, questions)
+                    (score, missing_questions) = get_score_and_missing_questions(text, questions)
                     print(f'{score} pts')
                     os.remove('temp.pdf')
                 except PriorOcrFoundError:
@@ -86,23 +88,32 @@ def main():
 
         # Store score in dictionary
         studentname: str = file_to_scan.split('_', 1)[0]
-        scores[studentname] = score
+        data.append({'student_name': studentname,
+                     'score': score,
+                     'missing_questions': str(missing_questions)})
 
     # Write scores to scores.csv
     with open('scores.csv', 'w', newline='') as f:
-        w = csv.writer(f)
-        w.writerows(scores.items())
+        fieldnames = ['student_name', 'score', 'missing_questions']
+        w = csv.DictWriter(f, fieldnames=fieldnames)
 
-def get_score(text: str, questions: List[str]) -> int:
+        w.writeheader()
+        for entry in data:
+            w.writerow(entry)
+
+def get_score_and_missing_questions(text: str, questions: List[str]) -> Tuple[int, List[str]]:
     # Remove duplicate spaces in text
     text = ' '.join(text.split())
     # Count number of completed questions
     completed_questions = 0
+    missing_questions: List[str] = []
     for question in questions:
         if len(question) > 0 and (question in text):
             completed_questions += 1
+        elif len(question) > 0:
+            missing_questions.append(question)
 
-    return completed_questions
+    return (completed_questions, missing_questions)
 
 if __name__ == '__main__':
     main()
