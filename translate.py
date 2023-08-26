@@ -34,10 +34,10 @@ def translate(start):
         # add translated problem to string
         if problem == "sc" and y != "ex":
             # print("Hi")
-            end += ("Self-Check " + str(num) + " \n")
+            end += ("Self-Check " + str(num) + "\n")
         if problem == "ex" and y != "sc":
             # print("Hi")
-            end += ("Exercise " + str(num) + " \n")
+            end += ("Exercise " + str(num) + "\n")
 
         # determine problem type
         if y == "sc":
