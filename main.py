@@ -108,7 +108,7 @@ def get_score_and_missing_questions(text: str, questions: List[str]) -> Tuple[in
     completed_questions = 0
     missing_questions: List[str] = []
     for question in questions:
-        if len(question) > 0 and (question in text):
+        if len(question) > 0 and (question.strip() in text):
             completed_questions += 1
         elif len(question) > 0:
             missing_questions.append(question)
