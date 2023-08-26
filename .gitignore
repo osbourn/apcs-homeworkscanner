@@ -1,5 +1,7 @@
 __pycache__
 questions.txt
 scores.csv
+names.txt
+paired_scores.csv
 .idea/
 Submissions*/
