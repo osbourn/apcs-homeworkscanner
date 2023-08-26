@@ -42,7 +42,7 @@ def Translate(start):
         if y == "ex":
             problem = "ex"
 
-    return end[-1]
+    return end
 
 
 # write translated text to questions?
