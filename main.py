@@ -1,7 +1,9 @@
 import csv
 import os
 import re
+import shutil
 import sys
+import zipfile
 from pathlib import Path
 from typing import Dict
 from typing import List
@@ -43,7 +45,19 @@ def main():
     if len(sys.argv) != 2:
         print('Exactly one command line argument should be supplied')
         exit(1)
-    files_in_directory: List[str] = os.listdir(sys.argv[1])
+    target_dir: str
+    if os.path.isdir(sys.argv[1]):
+        target_dir = sys.argv[1]
+    elif os.path.isfile(sys.argv[1]) and re.match(r'^.*\.zip$', sys.argv[1]):
+        if os.path.exists('temp_extracted_submissions') and os.path.isdir('temp_extracted_submissions'):
+            shutil.rmtree('temp_extracted_submissions')
+        with zipfile.ZipFile(sys.argv[1], 'r') as zip_ref:
+            zip_ref.extractall('temp_extracted_submissions')
+        target_dir = 'temp_extracted_submissions'
+    else:
+        print(f'Directory not found: {sys.argv[1]}')
+        raise FileNotFoundError("Directory not found")
+    files_in_directory: List[str] = os.listdir(target_dir)
 
     # Read list of questions from questions.txt
     questions: List[str]
@@ -55,7 +69,7 @@ def main():
 
     # Scan files
     for file_to_scan in files_in_directory:
-        filepath: Path = Path(sys.argv[1]) / file_to_scan
+        filepath: Path = Path(target_dir) / file_to_scan
         score: int = 0
         missing_questions: List[str] = []
 
