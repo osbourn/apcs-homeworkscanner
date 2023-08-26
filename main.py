@@ -1,10 +1,10 @@
-import os
-import sys
-import re
 import csv
+import os
+import re
+import sys
 from pathlib import Path
-from typing import List
 from typing import Dict
+from typing import List
 from typing import Tuple
 
 try:
@@ -17,6 +17,7 @@ pdf_ocr_available = False
 try:
     import ocrmypdf
     from ocrmypdf.exceptions import PriorOcrFoundError
+
     pdf_ocr_available = True
 except ModuleNotFoundError:
     print('Module ocrmypdf not found, ocr will not be available for pdfs')
@@ -25,6 +26,7 @@ image_ocr_available = False
 try:
     import pytesseract
     from PIL import Image
+
     image_ocr_available = True
 
     # Set location of tesseract on Windows systems that might not have it in PATH
@@ -34,6 +36,7 @@ try:
         pytesseract.pytesseract.tesseract_cmd = str(Path(localappdata_path) / r'Tesseract-OCR/tesseract.exe')
 except ModuleNotFoundError:
     print('Module pillow or pytesseract not found, ocr will not be available for image files')
+
 
 def main():
     # Get list of files to scan
@@ -77,7 +80,7 @@ def main():
             if score == 0 and pdf_ocr_available:
                 print(f'Applying OCR to {filepath}...')
                 try:
-                    ocrmypdf.ocr(str(filepath), 'temp.pdf') # pyright: ignore[reportPrivateImportUsage]
+                    ocrmypdf.ocr(str(filepath), 'temp.pdf')  # pyright: ignore[reportPrivateImportUsage]
                     print(f'Rescanning OCR version of {filepath}: ', end='')
                     text = extract_text('temp.pdf')
                     (score, missing_questions) = get_score_and_missing_questions(text, questions)
@@ -101,6 +104,7 @@ def main():
         for entry in data:
             w.writerow(entry)
 
+
 def get_score_and_missing_questions(text: str, questions: List[str]) -> Tuple[int, List[str]]:
     # Remove duplicate spaces in text
     text = ' '.join(text.split())
@@ -114,6 +118,7 @@ def get_score_and_missing_questions(text: str, questions: List[str]) -> Tuple[in
             missing_questions.append(question)
 
     return (completed_questions, missing_questions)
+
 
 if __name__ == '__main__':
     main()
