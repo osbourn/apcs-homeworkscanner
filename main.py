@@ -51,6 +51,7 @@ def main():
     elif os.path.isfile(sys.argv[1]) and re.match(r'^.*\.zip$', sys.argv[1]):
         if os.path.exists('temp_extracted_submissions') and os.path.isdir('temp_extracted_submissions'):
             shutil.rmtree('temp_extracted_submissions')
+        print(f'Extracting {sys.argv[1]} to "temp_extracted_submissions/"')
         with zipfile.ZipFile(sys.argv[1], 'r') as zip_ref:
             zip_ref.extractall('temp_extracted_submissions')
         target_dir = 'temp_extracted_submissions'
