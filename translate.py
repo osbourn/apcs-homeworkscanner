@@ -55,7 +55,7 @@ def main():
     end = Translate(start)
     print(end)
 
-    w = open("questions.txt", "a")
+    w = open("questions.txt", "w")
     w.write(end)
     w.close()
 
