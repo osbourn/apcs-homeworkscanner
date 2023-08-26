@@ -1,7 +1,7 @@
 import sys
 
 
-def Translate(start):
+def translate(start):
     end = ""
     arr = start.split(" ")
     problem = ""
@@ -19,7 +19,7 @@ def Translate(start):
                 # print("no")
                 num = float(y)
             # print(num)
-            except:
+            except ValueError:
                 # print("whoops")
                 pass
 
@@ -57,7 +57,7 @@ def main():
         start = f.read()
 
     # print(start)
-    end = Translate(start)
+    end = translate(start)
     print(end)
 
     w = open("questions.txt", "w")
