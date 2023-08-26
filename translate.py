@@ -1,3 +1,6 @@
+import sys
+
+
 def Translate(start):
     end = ""
     arr = start.split(" ")
@@ -47,9 +50,11 @@ def Translate(start):
 
 def main():
     # write translated text to questions?
-    end = ""
-    f = open("raw.txt", "r")
-    start = f.read()
+    if len(sys.argv) == 2:
+        start = sys.argv[1]
+    else:
+        f = open("raw.txt", "r")
+        start = f.read()
 
     # print(start)
     end = Translate(start)
