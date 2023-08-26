@@ -45,15 +45,20 @@ def Translate(start):
     return end
 
 
-# write translated text to questions?
-end = ""
-f = open("raw.txt", "r")
-start = f.read()
+def main():
+    # write translated text to questions?
+    end = ""
+    f = open("raw.txt", "r")
+    start = f.read()
 
-# print(start)
-end = Translate(start)
-print(end)
+    # print(start)
+    end = Translate(start)
+    print(end)
 
-w = open("questions.txt", "a")
-w.write(end)
-w.close()
+    w = open("questions.txt", "a")
+    w.write(end)
+    w.close()
+
+
+if __name__ == '__main__':
+    main()
