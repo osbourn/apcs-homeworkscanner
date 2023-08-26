@@ -104,6 +104,23 @@ def main():
         for entry in data:
             w.writerow(entry)
 
+    # Generate paired_scores.txt
+    try:
+        student_names: List[str] = []
+        with open('names.txt', 'r+') as f:
+            student_names = f.read().splitlines()
+    except FileNotFoundError:
+        print('names.txt not found, will not generate paired score list')
+    else:
+        paired_scores = pair_scores(data, student_names)
+        with open('paired_scores.csv', 'w', newline='') as f:
+            fieldnames = ['true_name', 'student_name', 'score', 'missing_questions']
+            w = csv.DictWriter(f, fieldnames=fieldnames)
+
+            w.writeheader()
+            for entry in paired_scores:
+                w.writerow(entry)
+
 
 def get_score_and_missing_questions(text: str, questions: List[str]) -> Tuple[int, List[str]]:
     # Remove duplicate spaces in text
@@ -118,6 +135,42 @@ def get_score_and_missing_questions(text: str, questions: List[str]) -> Tuple[in
             missing_questions.append(question)
 
     return (completed_questions, missing_questions)
+
+
+def convert_to_compact_name(name: str) -> str:
+    """
+    Converts "Doe, Jane" to doejane. Should work for people with more than two names
+    """
+    name_without_spaces_or_commas = name.translate(str.maketrans('', '', ', '))
+    return name_without_spaces_or_commas.lower()
+
+
+def pair_scores(score_data: List[Dict[str, str | int]], student_names: List[str]) -> List[Dict[str, str | int]]:
+    paired_scores: List[Dict[str, str | int]] = []
+    for name in student_names:
+        compact_name = convert_to_compact_name(name)
+        try:
+            first_matching_score = next(score for score in score_data if score['student_name'] == compact_name)
+            new_paired_score = first_matching_score.copy()
+            new_paired_score['true_name'] = name
+            paired_scores.append(new_paired_score)
+        except StopIteration:
+            new_paired_score = {
+                'true_name': name,
+                'student_name': '',
+                'score': 0,
+                'missing_questions': "MISSING"
+            }
+            paired_scores.append(new_paired_score)
+
+    # Find scores that did not end up in the "result" list
+    for score in score_data:
+        if not any(paired_score['student_name'] == score['student_name'] for paired_score in paired_scores):
+            new_paired_score = score.copy()
+            new_paired_score['true_name'] = '?'
+            paired_scores.append(new_paired_score)
+
+    return paired_scores
 
 
 if __name__ == '__main__':
