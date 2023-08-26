@@ -31,7 +31,7 @@ try:
 
     # Set location of tesseract on Windows systems that might not have it in PATH
     localappdata_path = os.environ.get('LOCALAPPDATA')
-    if localappdata_path != None and os.path.exists(Path(localappdata_path) / r'Tesseract-OCR/tesseract.exe'):
+    if localappdata_path is not None and os.path.exists(Path(localappdata_path) / r'Tesseract-OCR/tesseract.exe'):
         print('Tesseract found at %LocalAppData%/Tesseract-OCR/tesseract.exe, setting as tesseract executable')
         pytesseract.pytesseract.tesseract_cmd = str(Path(localappdata_path) / r'Tesseract-OCR/tesseract.exe')
 except ModuleNotFoundError:
@@ -90,8 +90,8 @@ def main():
                     print('OCR failed because text was already present')
 
         # Store score in dictionary
-        studentname: str = file_to_scan.split('_', 1)[0]
-        data.append({'student_name': studentname,
+        student_name: str = file_to_scan.split('_', 1)[0]
+        data.append({'student_name': student_name,
                      'score': score,
                      'missing_questions': str(missing_questions)})
 
@@ -104,9 +104,9 @@ def main():
         for entry in data:
             w.writerow(entry)
 
-    # Generate paired_scores.txt
+    # Generate paired_scores.csv
+    student_names: List[str]
     try:
-        student_names: List[str] = []
         with open('names.txt', 'r+') as f:
             student_names = f.read().splitlines()
     except FileNotFoundError:
@@ -134,12 +134,12 @@ def get_score_and_missing_questions(text: str, questions: List[str]) -> Tuple[in
         elif len(question) > 0:
             missing_questions.append(question)
 
-    return (completed_questions, missing_questions)
+    return completed_questions, missing_questions
 
 
 def convert_to_compact_name(name: str) -> str:
     """
-    Converts "Doe, Jane" to doejane. Should work for people with more than two names
+    Converts "Doe, Jane" to "doejane". Should work for people with more than two names
     """
     name_without_spaces_or_commas = name.translate(str.maketrans('', '', ', '))
     return name_without_spaces_or_commas.lower()
