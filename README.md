@@ -67,6 +67,10 @@ Thompson, Emily
 
 The script will run if this file does not exist but it won't produce the useful `paried_scores.csv` file.
 
+### Running
+
+Before running, **make sure your working directory is the directory containing the main.py file**. This script creates some temporary and output files, and it would be best to make sure these don't accidentally overwrite files elsewhere on your computer.
+
 Now you can run `python main.py /path/to/submissions/directory`. You can also run this directly on a `.zip` file, in
 which case it will be extracted to a new directory called `temp_extracted_submissions/`.
 
