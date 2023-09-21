@@ -34,8 +34,10 @@ python -m pip install pytesseract
 ```
 
 You also need to install [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) and make sure `tesseract` is either
-available in `$PATH` or is specifically located at `C:\Users\yourname\AppData\Local\Tesseract-OCR\tesseract.exe` on
-Windows.
+available in `$PATH`. Alternatively, on Windows, you can make sure that the executable is located at
+`C:\Users\yourname\AppData\Local\Tesseract-OCR\tesseract.exe` (in which case it doesn't need to be in `$PATH`).
+This is a hard coded path which is supposed to avoid having to add all the random executables located in Tesseract's
+directory to `$PATH`.
 
 This script has been tested with `ocrmypdf` version `14.4.0`, `Pillow` version `10.0.0`, and `pytesseract` version
 `0.3.10`. `Tesseract OCR` was tested with version `v5.2.0.20220712`.
