@@ -12,6 +12,9 @@ versions as well.
 It is recommended to make sure `pip` is up-to-date, otherwise installation of more complex packages (i.e. those
 with native code) might fail.
 
+If you get errors when installing, make sure `pip` is up to date. Sometimes older versions of pip can fail when
+trying to install package dependencies written in C or Rust.
+
 ### Base requirements
 
 You need to have these installed to run the script.
