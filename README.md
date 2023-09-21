@@ -33,7 +33,7 @@ python -m pip install Pillow
 python -m pip install pytesseract
 ```
 
-You also need to install [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) and make sure `tesseract` is either
+You also need to install [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) and make sure `tesseract` is
 available in `$PATH`. Alternatively, on Windows, you can make sure that the executable is located at
 `C:\Users\yourname\AppData\Local\Tesseract-OCR\tesseract.exe` (in which case it doesn't need to be in `$PATH`).
 This is a hard coded path which is supposed to avoid having to add all the random executables located in Tesseract's
