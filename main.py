@@ -182,8 +182,12 @@ def get_score_and_missing_questions(text: str, questions: List[str]) -> Tuple[in
 
 def convert_to_compact_name(name: str) -> str:
     """
-    Converts "Doe, Jane" to "doejane". Should work for people with more than two names
+    Converts "Doe, Jane" to "doejane". Should work for people with more than two names. There is special handling for
+    names that end with middle initials, but only in the specific format "Doe, Jane R".
     """
+    # Remove middle initial
+    if re.match(r'^.*, .* [A-Z]$', name):
+        name = name[:-2]
     name_without_spaces_or_commas = name.translate(str.maketrans('', '', ', '))
     return name_without_spaces_or_commas.lower()
 
