@@ -50,7 +50,19 @@ def main():
     parser.add_argument('--names', type=str, default='names.txt',
                         help='''Path to the file containing the list of student names. Defaults to names.txt.
                                 This can be omitted if you are not interested in the paired scores file.''')
+    parser.add_argument('--output', type=str, default='scores.csv',
+                        help='Path to where the output should be placed. Defaults to scores.csv')
+    parser.add_argument('--paired-output', type=str, default='paired_scores.csv',
+                        help='''Path to where the output consisting of scores paired to student names should be placed.
+                                Defaults to paired_scores.csv.''')
+    parser.add_argument('--disable-ocr', action='store_true',
+                        help='Disable OCR, even if tesseract is installed')
     args = parser.parse_args()
+
+    if args.disable_ocr:
+        global pdf_ocr_available, image_ocr_available
+        pdf_ocr_available = False
+        image_ocr_available = False
 
     target_dir: str
     if os.path.isdir(args.submissions):
@@ -123,7 +135,7 @@ def main():
                      'type': doc_type})
 
     # Write scores to scores.csv
-    with open('scores.csv', 'w', newline='') as f:
+    with open(args.output, 'w', newline='') as f:
         fieldnames = ['student_name', 'score', 'missing_questions', 'type']
         w = csv.DictWriter(f, fieldnames=fieldnames)
 
@@ -140,7 +152,7 @@ def main():
         print(f'{args.names} not found, will not generate paired score list')
     else:
         paired_scores = pair_scores(data, student_names)
-        with open('paired_scores.csv', 'w', newline='') as f:
+        with open(args.paired_output, 'w', newline='') as f:
             fieldnames = ['true_name', 'student_name', 'score', 'missing_questions', 'type']
             w = csv.DictWriter(f, fieldnames=fieldnames)
 
