@@ -73,6 +73,7 @@ def main():
         filepath: Path = Path(target_dir) / file_to_scan
         score: int = 0
         missing_questions: List[str] = []
+        doc_type: str = 'unknown'
 
         # Image files
         if image_ocr_available and re.match(r'.*\.(png|jpg)$', file_to_scan):
@@ -81,6 +82,7 @@ def main():
             img.convert("1")
             text = pytesseract.image_to_string(img)
             (score, missing_questions) = get_score_and_missing_questions(text, questions)
+            doc_type = 'image'
             print(f'{score} pts')
 
         # PDF files
@@ -89,6 +91,7 @@ def main():
             print(f'Scanning pdf {filepath}: ', end='')
             text = extract_text(str(filepath))
             (score, missing_questions) = get_score_and_missing_questions(text, questions)
+            doc_type = 'pdf'
             print(f'{score} pts')
 
             # If score is 0, rescan file with ocr
@@ -99,6 +102,7 @@ def main():
                     print(f'Rescanning OCR version of {filepath}: ', end='')
                     text = extract_text('temp.pdf')
                     (score, missing_questions) = get_score_and_missing_questions(text, questions)
+                    doc_type = 'image pdf'
                     print(f'{score} pts')
                     os.remove('temp.pdf')
                 except PriorOcrFoundError:
@@ -108,11 +112,12 @@ def main():
         student_name: str = file_to_scan.split('_', 1)[0]
         data.append({'student_name': student_name,
                      'score': score,
-                     'missing_questions': str(missing_questions)})
+                     'missing_questions': str(missing_questions),
+                     'type': doc_type})
 
     # Write scores to scores.csv
     with open('scores.csv', 'w', newline='') as f:
-        fieldnames = ['student_name', 'score', 'missing_questions']
+        fieldnames = ['student_name', 'score', 'missing_questions', 'type']
         w = csv.DictWriter(f, fieldnames=fieldnames)
 
         w.writeheader()
@@ -129,7 +134,7 @@ def main():
     else:
         paired_scores = pair_scores(data, student_names)
         with open('paired_scores.csv', 'w', newline='') as f:
-            fieldnames = ['true_name', 'student_name', 'score', 'missing_questions']
+            fieldnames = ['true_name', 'student_name', 'score', 'missing_questions', 'type']
             w = csv.DictWriter(f, fieldnames=fieldnames)
 
             w.writeheader()
@@ -174,7 +179,8 @@ def pair_scores(score_data: List[Dict[str, str | int]], student_names: List[str]
                 'true_name': name,
                 'student_name': '',
                 'score': 0,
-                'missing_questions': "MISSING"
+                'missing_questions': "MISSING",
+                'type': ''
             }
             paired_scores.append(new_paired_score)
 
