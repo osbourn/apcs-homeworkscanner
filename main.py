@@ -1,8 +1,8 @@
+import argparse
 import csv
 import os
 import re
 import shutil
-import sys
 import zipfile
 from pathlib import Path
 from typing import Dict
@@ -41,28 +41,35 @@ except ModuleNotFoundError:
 
 
 def main():
-    # Get list of files to scan
-    if len(sys.argv) != 2:
-        print('Exactly one command line argument should be supplied')
-        exit(1)
+    parser = argparse.ArgumentParser(
+        prog='Practice-It grader',
+        description='Scans a directory of completed Practice-It assignments and records the scores')
+    parser.add_argument('submissions', type=str, help='Path to the directory or zip file containing the files to grade')
+    parser.add_argument('--questions', type=str, default='questions.txt',
+                        help='Path to the file containing the list of questions. Defaults to questions.txt')
+    parser.add_argument('--names', type=str, default='names.txt',
+                        help='''Path to the file containing the list of student names. Defaults to names.txt.
+                                This can be omitted if you are not interested in the paired scores file.''')
+    args = parser.parse_args()
+
     target_dir: str
-    if os.path.isdir(sys.argv[1]):
-        target_dir = sys.argv[1]
-    elif os.path.isfile(sys.argv[1]) and re.match(r'^.*\.zip$', sys.argv[1]):
+    if os.path.isdir(args.submissions):
+        target_dir = args.submissions
+    elif os.path.isfile(args.submissions) and re.match(r'^.*\.zip$', args.submissions):
         if os.path.exists('temp_extracted_submissions') and os.path.isdir('temp_extracted_submissions'):
             shutil.rmtree('temp_extracted_submissions')
-        print(f'Extracting {sys.argv[1]} to "temp_extracted_submissions/"')
-        with zipfile.ZipFile(sys.argv[1], 'r') as zip_ref:
+        print(f'Extracting {args.submissions} to "temp_extracted_submissions/"')
+        with zipfile.ZipFile(args.submissions, 'r') as zip_ref:
             zip_ref.extractall('temp_extracted_submissions')
         target_dir = 'temp_extracted_submissions'
     else:
-        print(f'Directory not found: {sys.argv[1]}')
+        print(f'Directory not found: {args.submissions}')
         raise FileNotFoundError("Directory not found")
     files_in_directory: List[str] = os.listdir(target_dir)
 
     # Read list of questions from questions.txt
     questions: List[str]
-    with open('questions.txt', 'r+') as f:
+    with open(args.questions, 'r+') as f:
         questions = f.read().splitlines()
 
     # Create dictionary to store scores in
@@ -127,10 +134,10 @@ def main():
     # Generate paired_scores.csv
     student_names: List[str]
     try:
-        with open('names.txt', 'r+') as f:
+        with open(args.names, 'r+') as f:
             student_names = f.read().splitlines()
     except FileNotFoundError:
-        print('names.txt not found, will not generate paired score list')
+        print(f'{args.names} not found, will not generate paired score list')
     else:
         paired_scores = pair_scores(data, student_names)
         with open('paired_scores.csv', 'w', newline='') as f:
