@@ -3,7 +3,7 @@ __pycache__
 questions.txt
 raw.txt
 scores.csv
-names.txt
+*names.txt
 paired_scores.csv
 .idea/
 temp_extracted_submissions
