@@ -3,11 +3,14 @@ import csv
 import os
 import re
 import shutil
+import sys
 import zipfile
 from pathlib import Path
 from typing import Dict
 from typing import List
 from typing import Tuple
+
+assert sys.version_info >= (3, 7)
 
 try:
     from pdfminer.high_level import extract_text
