@@ -5,6 +5,7 @@ def translate(start):
     end = ""
     arr = start.split(" ")
     problem = ""
+    prev = 0;
     for x in arr:
         y = x.lower()
         num = 0
@@ -14,10 +15,22 @@ def translate(start):
             if "," in y:
                 y = x[0:-1]
 
-            # print(y)
+            # check its a number
             try:
                 # print("no")
                 num = float(y)
+
+                # check to make sure it has a decimal
+                try :
+                    y.index(".") 
+                    prev = int(num)
+                except ValueError:   
+                    print(prev)
+                    y = str(prev) + "." + y
+                    print(y)
+
+                num = float(y)
+
             # print(num)
             except ValueError:
                 # print("whoops")
@@ -30,7 +43,7 @@ def translate(start):
                 z = (y[0:i] + "0" + y[i])
                 num = float(z)
             # print(num)
-
+        print("y equals " + y)   
         # add translated problem to string
         if problem == "sc" and y != "ex":
             # print("Hi")
